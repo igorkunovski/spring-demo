@@ -7,10 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.NotAcceptableStatusException;
 import ru.gb.springdemo.model.*;
-import ru.gb.springdemo.repository.*;
-import ru.gb.springdemo.service.IssueService;
+import ru.gb.springdemo.service.*;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -18,19 +17,15 @@ import java.util.NoSuchElementException;
 @RequestMapping("/issue")
 public class IssueController {
 
-
   private final IssueService issueService;
-  private final IssueRepository issueRepository;
-  private final ReaderRepository readerRepository;
-  private final BookRepository bookRepository;
+  private final ReaderService readerService;
+  private final BookService bookService;
 
   @Autowired
-  public IssueController(IssueService service, IssueRepository issueRepository, ReaderRepository readerRepository,
-                         BookRepository bookRepository) {
+  public IssueController(IssueService service, ReaderService readerService, BookService bookService) {
     this.issueService = service;
-    this.issueRepository = issueRepository;
-    this.readerRepository = readerRepository;
-    this.bookRepository = bookRepository;
+    this.readerService = readerService;
+    this.bookService = bookService;
   }
 
   /**
@@ -38,8 +33,8 @@ public class IssueController {
    * @return возврат списка только открытых выдач
    */
   @GetMapping("/opened")
-  public ResponseEntity<ArrayList<Issue>> getOpenedIssues() {
-    return new ResponseEntity<>(issueRepository.getOpenedIssues(), HttpStatus.OK);
+  public ResponseEntity<List<Issue>> getOpenedIssues() {
+    return new ResponseEntity<>(issueService.getOpenedIssues(), HttpStatus.OK);
   }
 
   /**
@@ -48,8 +43,8 @@ public class IssueController {
    */
 
   @GetMapping("/all")
-  public ResponseEntity<ArrayList<Issue>> getAllIssues() {
-    return new ResponseEntity<>(issueRepository.getAllIssues(), HttpStatus.OK);
+  public ResponseEntity<List<Issue>> getAllIssues() {
+    return new ResponseEntity<>(issueService.getAllIssues(), HttpStatus.OK);
   }
 
   /**
@@ -67,10 +62,10 @@ public class IssueController {
       issue = issueService.issue(request);
 
       // добавление книги в список взятых книг читателя
-      Reader reader = readerRepository.getReaderById(request.getReaderId());
-      Book book = bookRepository.getBookById(request.getBookId());
-      reader.addBook(book);
-      issueRepository.addNewOpenedIssue(issue);
+      Reader reader = readerService.getReaderById(request.getReaderId());
+      Book book = bookService.getBookById(request.getBookId());
+      readerService.addBook(reader, book);
+      issueService.addNewOpenedIssue(issue);
 
     } catch (NoSuchElementException e) {
       return ResponseEntity.notFound().build();
@@ -82,7 +77,6 @@ public class IssueController {
     return ResponseEntity.status(HttpStatus.OK).body(issue);
   }
 
-
   /**
    * Метод добавляет текущее время в поле returnedDate выдачи и
    * удаляет книгу из списка взятых книг читателем.
@@ -93,18 +87,17 @@ public class IssueController {
   @PutMapping("/{id}")
   public ResponseEntity<Issue> returnBook(@PathVariable long id) {
 
-    Issue issue = issueRepository.getIssueById(id);
-    Book book = bookRepository.getBookById(issue.getBookId());
+    Issue issue = issueService.getIssueById(id);
+    Book book = bookService.getBookById(issue.getBookId());
 
     // книга удаляется из списка взятых книг читателя
-    readerRepository.getReaderById(issue.getReaderId()).removeBook(book);
+    readerService.getReaderById(issue.getReaderId()).removeBook(book);
 
     //добавляется время возврата книги, выдача удаляется из списка активных и добавляется в список закрытых
-    issueRepository.closeIssue(issue);
+    issueService.closeIssue(issue);
 
-    return ResponseEntity.status(HttpStatus.OK).body(issueRepository.getIssueById(id));
+    return ResponseEntity.status(HttpStatus.OK).body(issueService.getIssueById(id));
   }
-
 
   /**
    *
@@ -114,7 +107,7 @@ public class IssueController {
 
   @GetMapping("/{id}")
   public ResponseEntity<Issue> getIssue(@PathVariable long id) {
-    Issue issue = issueRepository.getIssueById(id);
+    Issue issue = issueService.getIssueById(id);
     if (issue !=null) {
       return new ResponseEntity<>(issue, HttpStatus.OK);
     } else {

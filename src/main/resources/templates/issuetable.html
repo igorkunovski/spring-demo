@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Table of issues</title>
+    <link th:href="@{/styles/css/main.css}" rel="stylesheet" />
+</head>
+<body>
+
+    <h1> Table of issues</h1><br>
+
+    <table>
+        <tr>
+            <th>Issue id</th>
+            <th>Book id</th>
+            <th>Reader id</th>
+            <th>Issue date</th>
+            <th>Return date</th>
+        </tr>
+
+        <tr th:each="issue: ${issues}">
+            <td th:text="${issue.getId()}"></td>
+            <td th:text="${issue.getBookId()}"></td>
+            <td th:text="${issue.getReaderId()}"></td>
+            <td th:text="${issue.getIssueDate()}"></td>
+            <td th:text="${issue.getReturnedDate()}"></td>
+        </tr>
+
+    </table>
+
+</body>
+</html>

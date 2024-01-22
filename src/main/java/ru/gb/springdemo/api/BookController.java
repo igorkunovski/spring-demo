@@ -5,50 +5,62 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.gb.springdemo.model.Book;
-import ru.gb.springdemo.repository.BookRepository;
+import ru.gb.springdemo.service.BookService;
 
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/book")
 public class BookController {
 
-    private final BookRepository bookRepository;
+    private final BookService bookService;
 
     @Autowired
-    public BookController(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
     }
 
     @GetMapping("/all")
     public ResponseEntity<ArrayList<Book>> getAllBooks() {
-        return new ResponseEntity<>(bookRepository.getAllBooks(), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.getAllBooks(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBook(@PathVariable Long id) {
-        Book book = bookRepository.getBookById(id);
-        if (book !=null) {
+        try {
+
+            Book book = bookService.getBookById(id);
             return new ResponseEntity<>(book, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Book> deleteBook(@PathVariable Long id) {
-        Book book = bookRepository.getBookById(id);
-        if (book ==null) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        } else{
-            bookRepository.deleteBookById(id);
+
+        try {
+
+            Book book = bookService.getBookById(id);
+            bookService.deleteBook(id);
             return new ResponseEntity<>(book, HttpStatus.NO_CONTENT);
+
+        }catch (NoSuchElementException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping
     public ResponseEntity<Book> createBook(@RequestBody String title) {
-        bookRepository.createBook(title);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        try {
+
+            bookService.createBook(title);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
     }
 }

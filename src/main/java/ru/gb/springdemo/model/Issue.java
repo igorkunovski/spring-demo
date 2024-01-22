@@ -22,7 +22,7 @@ public class Issue {
     this.id = sequence++;
     this.bookId = bookId;
     this.readerId = readerId;
-    this.issueDate = LocalDateTime.now();
+    this.issueDate = LocalDateTime.now().withNano(0);
     this.returnedDate = null;
   }
 

@@ -31,8 +31,8 @@ public class ReaderRepository {
 
   public Reader getReaderById(long id) {
     return readers.stream().filter(it -> Objects.equals(it.getId(), id))
-      .findFirst()
-      .orElse(null);
+            .findFirst()
+            .orElse(null);
   }
 
   public void deleteReaderById(Long id) {
@@ -44,6 +44,9 @@ public class ReaderRepository {
     System.out.println("Reader added successfully");
   }
 
-
-
+  public List<Reader> findReadersByName(String name){
+    return getAllReaders().stream()
+            .filter(reader -> reader.getName().equals(name))
+            .toList();
+  }
 }

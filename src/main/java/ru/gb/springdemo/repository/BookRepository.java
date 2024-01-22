@@ -12,7 +12,6 @@ import java.util.Objects;
 public class BookRepository {
 
   private final List<Book> books;
-
   public BookRepository() {
     this.books = new ArrayList<>();
   }
@@ -35,12 +34,19 @@ public class BookRepository {
 
   public Book getBookById(Long id) {
     return books.stream().filter(book -> Objects.equals(book.getId(), id))
-      .findFirst()
-      .orElse(null);
+            .findFirst()
+            .orElse(null);
   }
 
   public void deleteBookById(Long id) {
     books.removeIf(book -> Objects.equals(book.getId(), id));
+  }
+
+  public List<Book> findBookByTitle(String title){
+    return getAllBooks().stream()
+            .filter(book -> book.getTitle().equals(title))
+            .toList();
+
   }
 
 }

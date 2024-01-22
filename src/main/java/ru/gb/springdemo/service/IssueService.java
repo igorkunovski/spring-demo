@@ -7,6 +7,7 @@ import org.springframework.web.server.NotAcceptableStatusException;
 import ru.gb.springdemo.model.*;
 import ru.gb.springdemo.repository.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -29,7 +30,6 @@ public class IssueService {
     }
 
     // проверить, что у читателя лимит не превышает в 3 книги)
-
     if (readerRepository.getReaderById(request.getReaderId()).getBookList().size() >= maxAllowedBook) {
       throw new NotAcceptableStatusException("Превышен допустимы лимит книг");
     }
@@ -37,4 +37,27 @@ public class IssueService {
     return new Issue(request.getBookId(), request.getReaderId());
   }
 
+  public List<Issue> getAllIssues() {
+    return issueRepository.getAllIssues();
+  }
+
+  public List<Issue> getOpenedIssues() {
+    return issueRepository.getOpenedIssues();
+  }
+
+  public void addNewOpenedIssue(Issue issue) {
+    issueRepository.addNewOpenedIssue(issue);
+  }
+
+  public Issue getIssueById(long id) {
+    return issueRepository.getIssueById(id);
+  }
+
+  public void closeIssue(Issue issue) {
+    issueRepository.closeIssue(issue);
+  }
+
+  public List<Issue> getUserIssues(Long id) {
+    return issueRepository.getUserIssues(id);
+  }
 }

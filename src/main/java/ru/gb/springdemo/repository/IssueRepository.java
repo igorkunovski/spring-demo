@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 
 @Repository
@@ -47,7 +46,7 @@ public class IssueRepository {
             .findFirst()
             .ifPresent(searched ->
                     {
-                      searched.setReturnedDate(LocalDateTime.now());
+                      searched.setReturnedDate(LocalDateTime.now().withNano(0));
                       closedIssues.add(searched);
                       openedIssues.remove(searched);
                     }
@@ -60,10 +59,10 @@ public class IssueRepository {
             .orElse(null);
   }
 
-  public Stream<Issue> getUserIssues(long id){
+  public List<Issue> getUserIssues(long id){
     return getAllIssues().stream()
             .filter(issue -> Objects.equals(issue.getReaderId(), id))
-            .sorted(Comparator.comparingLong(Issue::getId));
+            .sorted(Comparator.comparingLong(Issue::getId)).toList();
   }
 
 }
